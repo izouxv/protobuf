@@ -1,0 +1,49 @@
+diff --git a/src/google/protobuf/compiler/objectivec/objectivec_enum.cc b/src/google/protobuf/compiler/objectivec/objectivec_enum.cc
+index 34e1782..22d9bdd 100644
+--- a/src/google/protobuf/compiler/objectivec/objectivec_enum.cc
++++ b/src/google/protobuf/compiler/objectivec/objectivec_enum.cc
+@@ -192,9 +192,6 @@ void EnumGenerator::GenerateSource(io::Printer* printer) {
+         "extraTextFormatInfo", CEscape(text_format_decode_data.Data()));
+     }
+     printer->Print(
+-      "    if (!OSAtomicCompareAndSwapPtrBarrier(nil, worker, (void * volatile *)&descriptor)) {\n"
+-      "      [worker release];\n"
+-      "    }\n"
+       "  }\n"
+       "  return descriptor;\n"
+       "}\n\n");
+diff --git a/src/google/protobuf/compiler/objectivec/objectivec_field.cc b/src/google/protobuf/compiler/objectivec/objectivec_field.cc
+index d2a6e88..78d13ac 100644
+--- a/src/google/protobuf/compiler/objectivec/objectivec_field.cc
++++ b/src/google/protobuf/compiler/objectivec/objectivec_field.cc
+@@ -318,7 +318,7 @@ ObjCObjFieldGenerator::~ObjCObjFieldGenerator() {}
+ 
+ void ObjCObjFieldGenerator::GenerateFieldStorageDeclaration(
+     io::Printer* printer) const {
+-  printer->Print(variables_, "$storage_type$ *$name$;\n");
++  printer->Print(variables_, "__unsafe_unretained $storage_type$ *$name$;\n");
+ }
+ 
+ void ObjCObjFieldGenerator::GeneratePropertyDeclaration(
+@@ -365,7 +365,7 @@ void RepeatedFieldGenerator::FinishInitialization(void) {
+ 
+ void RepeatedFieldGenerator::GenerateFieldStorageDeclaration(
+     io::Printer* printer) const {
+-  printer->Print(variables_, "$array_storage_type$ *$name$;\n");
++  printer->Print(variables_, "__unsafe_unretained $array_storage_type$ *$name$;\n");
+ }
+ 
+ void RepeatedFieldGenerator::GeneratePropertyImplementation(
+diff --git a/src/google/protobuf/compiler/objectivec/objectivec_file.cc b/src/google/protobuf/compiler/objectivec/objectivec_file.cc
+index 438f411..bf512fc 100644
+--- a/src/google/protobuf/compiler/objectivec/objectivec_file.cc
++++ b/src/google/protobuf/compiler/objectivec/objectivec_file.cc
+@@ -619,7 +619,7 @@ void FileGenerator::PrintFileRuntimePreamble(
+       "// This CPP symbol can be defined to use imports that match up to the framework\n"
+       "// imports needed when using CocoaPods.\n"
+       "#if !defined($cpp_symbol$)\n"
+-      " #define $cpp_symbol$ 0\n"
++      " #define $cpp_symbol$ 1\n"
+       "#endif\n"
+       "\n"
+       "#if $cpp_symbol$\n"
